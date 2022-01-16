@@ -1,6 +1,0 @@
----
-- name: Install Fuck.
-  pip:
-    name: thefuck
-    state: present
-    executable: pip3
