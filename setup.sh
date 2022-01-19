@@ -14,5 +14,4 @@ git clone https://github.com/tpeterson66/observer.git /tmp/observer
 
 
 echo "running the playbook..."
-cd /tmp/observer
-ansible-playbook -i inventory.ini playbook.yml
+ansible-playbook -i /tmp/observer/generalsetup/ansinble/inventory.ini /tmp/observer/generalsetup/ansinble/playbook.yml
