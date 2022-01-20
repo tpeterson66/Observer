@@ -1,8 +1,8 @@
 ---
 # Tools
-tools: true
+setup: true
 # includes, fish, bat, kubectl, helm, k9s, azcli, thefuck
 
 # install Docker
-docker: false
+docker: true
 # includes dockercompose, portainer
