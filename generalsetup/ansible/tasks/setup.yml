@@ -46,27 +46,6 @@
     state: present
   when: ansible_facts.os_family == "Debian"
 
-# k9s
-- name: Check if k9s is isntalled.
-  ansible.builtin.command: which k9s
-  failed_when: false
-  changed_when: false
-  check_mode: false
-  register: k9s_command_results
-
-- name: Download K9s Install Script.
-  ansible.builtin.get_url:
-    url: https://github.com/derailed/k9s/releases/download/v0.25.18/k9s_Darwin_x86_64.tar.gz
-    dest: /tmp/k9s_Darwin_x86_64.tar.gz
-    mode: 0775
-  when: k9s_command_results.rc == 1
-
-- name: Extract k9s into /usr/bin
-  ansible.builtin.unarchive:
-    src: /tmp/k9s_Darwin_x86_64.tar.gz
-    dest: /usr/bin
-  become: true
-
 # Kubectl 
 - name: Check if Kubectl is installed.
   ansible.builtin.command: which kubectl
@@ -112,6 +91,28 @@
 - name: Update bashrc.
   ansible.builtin.command: echo "source <(kubectl completion bash)" >> ~/.bashrc
   when: kubectl_command_results.rc == 1
+
+# k9s
+- name: Check if k9s is isntalled.
+  ansible.builtin.command: which k9s
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  register: k9s_command_results
+
+- name: Download K9s Install Script.
+  ansible.builtin.get_url:
+    url: https://github.com/derailed/k9s/releases/download/v0.25.18/k9s_Darwin_x86_64.tar.gz
+    dest: /tmp/k9s_Darwin_x86_64.tar.gz
+    mode: 0775
+  when: k9s_command_results.rc == 1
+
+- name: Extract k9s into /usr/bin
+  ansible.builtin.unarchive:
+    src: /tmp/k9s_Darwin_x86_64.tar.gz
+    dest: /usr/bin
+  become: true
+  when: k9s_command_results.rc == 1
 
 # Helm
 - name: Check if Helm is installed.
