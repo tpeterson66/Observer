@@ -1,0 +1,142 @@
+---
+# AzCLI
+- name: Check if Azure CLI is installed.
+  ansible.builtin.command: which az
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  register: azcli_command_results
+
+- name: Download Azure CLI Install Script.
+  ansible.builtin.get_url:
+    url: https://aka.ms/InstallAzureCLIDeb
+    dest: /tmp/get_azcli.sh
+    mode: 0775
+  when: azcli_command_results.rc == 1
+
+- name: Run Helm install Script.
+  ansible.builtin.command: /tmp/get_azcli.sh
+  when: azcli_command_results.rc == 1
+
+# Fish
+- name: Install Fish (Debian).
+  ansible.builtin.apt:
+    name:
+      - fish
+    state: present
+  when: ansible_facts.os_family == "Debian"
+
+# Bat
+- name: Install Bat (Debian).
+  ansible.builtin.apt:
+    name:
+      - bat
+    state: present
+  when: ansible_facts.os_family == "Debian"
+
+# change default shell
+- name: Change the default shell
+  ansible.builtin.shell: chsh -s $(which fish)
+
+# Bat
+- name: Install Bat (Debian).
+  ansible.builtin.apt:
+    name:
+      - bat
+    state: present
+  when: ansible_facts.os_family == "Debian"
+
+# Kubectl 
+- name: Check if Kubectl is installed.
+  ansible.builtin.command: which kubectl
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  register: kubectl_command_results
+
+- name: Add an apt signing key for Kubernetes
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Adding apt repository for Kubernetes
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+    filename: kubernetes.list
+
+- name: Install Kubernetes binaries
+  apt: 
+    name: "kubectl"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+      - kubectl
+  when: kubectl_command_results.rc == 1
+
+- name: Add serve alias for foo user
+  lineinfile:
+    # path=/{{ ansible_user }}/.bashrc
+    path=/root/.bashrc
+    line="alias k='kubectl'"
+    owner={{ansible_user}}
+    regexp='^alias k='kubectl'$'
+    state=present
+    insertafter=EOF
+    create=True
+
+# Setup auto complete
+# echo "source <(kubectl completion bash)" >> ~/.bashrc
+- name: Update bashrc.
+  ansible.builtin.command: echo "source <(kubectl completion bash)" >> ~/.bashrc
+  when: kubectl_command_results.rc == 1
+
+# k9s
+- name: Check if k9s is isntalled.
+  ansible.builtin.command: which k9s
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  register: k9s_command_results
+
+- name: Download K9s Install Script.
+  ansible.builtin.get_url:
+    url: https://github.com/derailed/k9s/releases/download/v0.25.18/k9s_Darwin_x86_64.tar.gz
+    dest: /tmp/k9s_Darwin_x86_64.tar.gz
+    mode: 0775
+  when: k9s_command_results.rc == 1
+
+- name: Extract k9s into /usr/bin
+  ansible.builtin.unarchive:
+    src: /tmp/k9s_Darwin_x86_64.tar.gz
+    dest: /usr/bin
+  become: true
+  when: k9s_command_results.rc == 1
+
+# Helm
+- name: Check if Helm is installed.
+  ansible.builtin.command: which helm
+  failed_when: false
+  changed_when: false
+  check_mode: false
+  register: helm_command_results
+
+- name: Download Helm Install Script.
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+    dest: /tmp/get_helm.sh
+    mode: 0775
+  when: helm_command_results.rc == 1
+
+- name: Run Helm install Script.
+  ansible.builtin.command: /tmp/get_helm.sh
+  when: helm_command_results.rc == 1
+
+# the fuck.
+- name: Install Fuck.
+  pip:
+    name: thefuck
+    state: present
+    executable: pip3
+
