@@ -22,8 +22,18 @@ RUN apt-get update \
         apt-transport-https \
         software-properties-common \
         wget
-
+# Azure CLI
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+
+# Powershell
+# Download the Microsoft repository GPG keys
+wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb
+# Register the Microsoft repository GPG keys
+dpkg -i packages-microsoft-prod.deb
+# Update the list of products
+apt-get update
+# Install PowerShell
+apt-get install -y powershell
 
 RUN curl https://releases.hashicorp.com/terraform/0.14.7/terraform_0.14.7_linux_amd64.zip > /tmp/terraform.zip
 RUN command unzip /tmp/terraform.zip -d /usr/local/bin/
